@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'Russian Vocabulary App',
       home: VocabularyList(),
     );
@@ -13,21 +15,23 @@ class MyApp extends StatelessWidget {
 }
 
 class VocabularyList extends StatefulWidget {
+  const VocabularyList({Key? key});
+
   @override
   _VocabularyListState createState() => _VocabularyListState();
 }
 
 class _VocabularyListState extends State<VocabularyList> {
-  final List<String> allWords = [
-    'Привет', // hello
-    'Спасибо', // thank you
-    'Кошка', // cat
-    'Дерево', // tree
-    'Автобус', // bus
+  final List<Map<String, String>> allWords = [
+    {'russian': 'Привет', 'english': 'hello'},
+    {'russian': 'Спасибо', 'english': 'thank you'},
+    {'russian': 'Кошка', 'english': 'cat'},
+    {'russian': 'Дерево', 'english': 'tree'},
+    {'russian': 'Автобус', 'english': 'bus'},
     // add more words here
   ];
 
-  List<String> filteredWords = [];
+  List<Map<String, String>> filteredWords = [];
 
   TextEditingController searchController = TextEditingController();
 
@@ -41,10 +45,10 @@ class _VocabularyListState extends State<VocabularyList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Russian Vocabulary List'),
+        title: const Text('Russian Vocabulary List'),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.search),
+            icon: const Icon(Icons.search),
             onPressed: () {
               showSearch(context: context, delegate: WordSearch(filteredWords));
             },
@@ -55,7 +59,8 @@ class _VocabularyListState extends State<VocabularyList> {
         itemCount: filteredWords.length,
         itemBuilder: (BuildContext context, int index) {
           return ListTile(
-            title: Text(filteredWords[index]),
+            title: Text(filteredWords[index]['russian']!),
+            subtitle: Text(filteredWords[index]['english']!),
             onTap: () {
               // add code to play audio file here
             },
@@ -66,8 +71,8 @@ class _VocabularyListState extends State<VocabularyList> {
   }
 }
 
-class WordSearch extends SearchDelegate<String> {
-  final List<String> words;
+class WordSearch extends SearchDelegate<dynamic> {
+  final List<Map<String, String>> words;
 
   WordSearch(this.words);
 
@@ -75,7 +80,7 @@ class WordSearch extends SearchDelegate<String> {
   List<Widget> buildActions(BuildContext context) {
     return [
       IconButton(
-        icon: Icon(Icons.clear),
+        icon: const Icon(Icons.clear),
         onPressed: () {
           query = '';
         },
@@ -86,21 +91,22 @@ class WordSearch extends SearchDelegate<String> {
   @override
   Widget buildLeading(BuildContext context) {
     return IconButton(
-      icon: Icon(Icons.arrow_back),
+      icon: const Icon(Icons.arrow_back),
       onPressed: () {
-        close(context, '');
+        close(context, {});
       },
     );
   }
 
   @override
   Widget buildResults(BuildContext context) {
-    final List<String> results = words.where((word) => word.toLowerCase().contains(query.toLowerCase())).toList();
+    final List<Map<String, String>> results = words.where((word) => word['russian']!.toLowerCase().contains(query.toLowerCase()) || word['english']!.toLowerCase().contains(query.toLowerCase())).toList();
     return ListView.builder(
       itemCount: results.length,
       itemBuilder: (BuildContext context, int index) {
         return ListTile(
-          title: Text(results[index]),
+          title: Text(results[index]['russian']!),
+          subtitle: Text(results[index]['english']!),
           onTap: () {
             close(context, results[index]);
           },
@@ -111,14 +117,15 @@ class WordSearch extends SearchDelegate<String> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    final List<String> suggestionList = query.isEmpty
+    final List<Map<String, String>> suggestionList = query.isEmpty
         ? words
-        : words.where((word) => word.toLowerCase().contains(query.toLowerCase())).toList();
+        : words.where((word) => word['russian']!.toLowerCase().contains(query.toLowerCase()) || word['english']!.toLowerCase().contains(query.toLowerCase())).toList();
     return ListView.builder(
       itemCount: suggestionList.length,
       itemBuilder: (BuildContext context, int index) {
         return ListTile(
-          title: Text(suggestionList[index]),
+          title: Text(suggestionList[index]['russian']!),
+          subtitle: Text(suggestionList[index]['english']!),
           onTap: () {
             close(context, suggestionList[index]);
           },
@@ -127,3 +134,4 @@ class WordSearch extends SearchDelegate<String> {
     );
   }
 }
+
