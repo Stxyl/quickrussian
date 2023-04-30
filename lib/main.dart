@@ -1,4 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:just_audio/just_audio.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() => runApp(const MyApp());
 
@@ -22,12 +28,31 @@ class VocabularyList extends StatefulWidget {
 }
 
 class _VocabularyListState extends State<VocabularyList> {
+  // add code to initialize audio player here
+  AudioPlayer audioPlayer = AudioPlayer();
+
+  // List of words (With audio linked)
   final List<Map<String, String>> allWords = [
-    {'russian': 'Привет', 'english': 'hello'},
-    {'russian': 'Спасибо', 'english': 'thank you'},
-    {'russian': 'Кошка', 'english': 'cat'},
-    {'russian': 'Дерево', 'english': 'tree'},
-    {'russian': 'Автобус', 'english': 'bus'},
+    {'russian': 'и', 'english': 'and', 'audio': '1.mp3'},
+    {'russian': 'в', 'english': 'in, at', 'audio': '2.mp3'},
+    {'russian': 'не', 'english': 'not', 'audio': '3.mp3'},
+    {'russian': 'он', 'english': 'he', 'audio': '4.mp3'},
+    {'russian': 'на', 'english': 'on, it, at, to', 'audio': '5.mp3'},
+    {'russian': 'я', 'english': 'I', 'audio': '6.mp3'},
+    {'russian': 'что', 'english': 'that, why', 'audio': '7.mp3'},
+    {'russian': 'тот', 'english': 'that', 'audio': '8.mp3'},
+    {'russian': 'быть', 'english': 'to be', 'audio': '9.mp3'},
+    {'russian': 'с', 'english': 'with', 'audio': '10.mp3'},
+    {'russian': 'а', 'english': 'while, and, but', 'audio': '11.mp3'},
+    {'russian': 'весь', 'english': 'all, everything', 'audio': '12.mp3'},
+    {'russian': 'э́то', 'english': 'that, this, it', 'audio': '13.mp3'},
+    {'russian': 'как', 'english': 'how, what, as, like', 'audio': '14.mp3'},
+    {'russian': 'она', 'english': 'she', 'audio': '15.mp3'},
+    {'russian': 'по', 'english': 'on, along, by', 'audio': '16.mp3'},
+    {'russian': 'но', 'english': 'but', 'audio': '17.mp3'},
+    {'russian': 'они', 'english': 'they', 'audio': '18.mp3'},
+    {'russian': 'к', 'english': 'to, for, by', 'audio': '19.mp3'},
+    {'russian': 'у', 'english': 'by, with, of', 'audio': '20.mp3'},
     // add more words here
   ];
 
@@ -38,7 +63,14 @@ class _VocabularyListState extends State<VocabularyList> {
   @override
   void initState() {
     super.initState();
+    audioPlayer = AudioPlayer();
     filteredWords.addAll(allWords);
+  }
+
+  @override
+  void dispose() {
+    audioPlayer.dispose();
+    super.dispose();
   }
 
   @override
@@ -61,8 +93,18 @@ class _VocabularyListState extends State<VocabularyList> {
           return ListTile(
             title: Text(filteredWords[index]['russian']!),
             subtitle: Text(filteredWords[index]['english']!),
-            onTap: () {
+            onTap: () async {
               // add code to play audio file here
+              final audioFile = await rootBundle
+                  .load('assets/audio/${filteredWords[index]['audio']}');
+              final audioPath =
+                  '${(await getTemporaryDirectory()).path}/${filteredWords[index]['audio']}';
+              File(audioPath).writeAsBytesSync(audioFile.buffer.asUint8List());
+
+              await audioPlayer.setFilePath(audioPath);
+
+              // Play Audio here
+              audioPlayer.play();
             },
           );
         },
@@ -100,7 +142,11 @@ class WordSearch extends SearchDelegate<dynamic> {
 
   @override
   Widget buildResults(BuildContext context) {
-    final List<Map<String, String>> results = words.where((word) => word['russian']!.toLowerCase().contains(query.toLowerCase()) || word['english']!.toLowerCase().contains(query.toLowerCase())).toList();
+    final List<Map<String, String>> results = words
+        .where((word) =>
+            word['russian']!.toLowerCase().contains(query.toLowerCase()) ||
+            word['english']!.toLowerCase().contains(query.toLowerCase()))
+        .toList();
     return ListView.builder(
       itemCount: results.length,
       itemBuilder: (BuildContext context, int index) {
@@ -119,7 +165,11 @@ class WordSearch extends SearchDelegate<dynamic> {
   Widget buildSuggestions(BuildContext context) {
     final List<Map<String, String>> suggestionList = query.isEmpty
         ? words
-        : words.where((word) => word['russian']!.toLowerCase().contains(query.toLowerCase()) || word['english']!.toLowerCase().contains(query.toLowerCase())).toList();
+        : words
+            .where((word) =>
+                word['russian']!.toLowerCase().contains(query.toLowerCase()) ||
+                word['english']!.toLowerCase().contains(query.toLowerCase()))
+            .toList();
     return ListView.builder(
       itemCount: suggestionList.length,
       itemBuilder: (BuildContext context, int index) {
@@ -134,4 +184,3 @@ class WordSearch extends SearchDelegate<dynamic> {
     );
   }
 }
-
