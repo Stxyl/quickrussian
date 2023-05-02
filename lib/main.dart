@@ -1,11 +1,13 @@
+//Importing the required packages
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-
 import 'package:flutter/services.dart' show rootBundle;
+
+// Importing the required packages (Third Party)
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 
+// Starting the main function (App)
 void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
@@ -14,21 +16,24 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      title: 'Russian Vocabulary App',
+      title: '100 Russian Words',
       home: VocabularyList(),
     );
   }
 }
 
+// Creating a stateful widget
 class VocabularyList extends StatefulWidget {
   const VocabularyList({Key? key});
 
+  // Creating a state
   @override
   _VocabularyListState createState() => _VocabularyListState();
 }
 
+// Creating a state class
 class _VocabularyListState extends State<VocabularyList> {
-  // add code to initialize audio player here
+  // initialize audio player here
   AudioPlayer audioPlayer = AudioPlayer();
 
   // List of words (With audio linked)
@@ -53,13 +58,26 @@ class _VocabularyListState extends State<VocabularyList> {
     {'russian': 'они', 'english': 'they', 'audio': '18.mp3'},
     {'russian': 'к', 'english': 'to, for, by', 'audio': '19.mp3'},
     {'russian': 'у', 'english': 'by, with, of', 'audio': '20.mp3'},
-    // add more words here
+    {'russian': 'ты', 'english': 'you', 'audio': '21.mp3'},
+    {'russian': 'из', 'english': 'from, of, in', 'audio': '22.mp3'},
+    {'russian': 'мы', 'english': 'we', 'audio': '23.mp3'},
+    {'russian': 'за', 'english': 'behind, over, at, after', 'audio': '24.mp3'},
+    {'russian': 'вы', 'english': 'you', 'audio': '25.mp3'},
+    {'russian': 'так', 'english': 'so, thus, then', 'audio': '26.mp3'},
+    {'russian': 'же', 'english': 'and, as for, but, same', 'audio': '27.mp3'},
+    {'russian': 'от', 'english': 'from, of, for', 'audio': '28.mp3'},
+    {'russian': 'сказать', 'english': 'to say, to speak', 'audio': '29.mp3'},
+    {'russian': 'э́тот', 'english': 'this', 'audio': '30.mp3'},
   ];
 
+  // List of filtered words
   List<Map<String, String>> filteredWords = [];
 
+  // Search controller
   TextEditingController searchController = TextEditingController();
 
+  // Initializing the state
+  // to allow the audio player to play
   @override
   void initState() {
     super.initState();
@@ -67,12 +85,16 @@ class _VocabularyListState extends State<VocabularyList> {
     filteredWords.addAll(allWords);
   }
 
+  // Disposing the state
+  // to allow the audio player to dispose
+  // (To prevent memory leaks)
   @override
   void dispose() {
     audioPlayer.dispose();
     super.dispose();
   }
 
+  // Building the widget (UI)
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -96,11 +118,15 @@ class _VocabularyListState extends State<VocabularyList> {
             onTap: () async {
               // add code to play audio file here
               final audioFile = await rootBundle
+              // Grabbing file from assets folder (Assigned to word)
                   .load('assets/audio/${filteredWords[index]['audio']}');
               final audioPath =
+              // Grabbing file from dir then generate temporary dir when loaded to memory
                   '${(await getTemporaryDirectory()).path}/${filteredWords[index]['audio']}';
+              // Writing the audio file to the temporary directory
               File(audioPath).writeAsBytesSync(audioFile.buffer.asUint8List());
 
+              // Setting the file path to the audio player
               await audioPlayer.setFilePath(audioPath);
 
               // Play Audio here
@@ -113,11 +139,14 @@ class _VocabularyListState extends State<VocabularyList> {
   }
 }
 
+// Creating a search delegate
 class WordSearch extends SearchDelegate<dynamic> {
   final List<Map<String, String>> words;
 
+  // Constructor
   WordSearch(this.words);
 
+  // Building the search icon ability
   @override
   List<Widget> buildActions(BuildContext context) {
     return [
@@ -130,6 +159,7 @@ class WordSearch extends SearchDelegate<dynamic> {
     ];
   }
 
+  // Building the back button
   @override
   Widget buildLeading(BuildContext context) {
     return IconButton(
@@ -140,6 +170,7 @@ class WordSearch extends SearchDelegate<dynamic> {
     );
   }
 
+  // Building the results based on the query (Both Russian and English)
   @override
   Widget buildResults(BuildContext context) {
     final List<Map<String, String>> results = words
@@ -161,6 +192,7 @@ class WordSearch extends SearchDelegate<dynamic> {
     );
   }
 
+  // Building the suggestions based on the query (Both Russian and English)
   @override
   Widget buildSuggestions(BuildContext context) {
     final List<Map<String, String>> suggestionList = query.isEmpty
