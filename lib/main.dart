@@ -124,7 +124,7 @@ class _VocabularyListState extends State<VocabularyList> {
               // Grabbing file from dir then generate temporary dir when loaded to memory
                   '${(await getTemporaryDirectory()).path}/${filteredWords[index]['audio']}';
               // Writing the audio file to the temporary directory
-              File(audioPath).writeAsBytesSync(audioFile.buffer.asUint8List());
+              await File(audioPath).writeAsBytes(audioFile.buffer.asUint8List());
 
               // Setting the file path to the audio player
               await audioPlayer.setFilePath(audioPath);
@@ -140,8 +140,11 @@ class _VocabularyListState extends State<VocabularyList> {
 }
 
 // Creating a search delegate
-class WordSearch extends SearchDelegate<dynamic> {
+class WordSearch extends SearchDelegate<Map<String, String>> {
   final List<Map<String, String>> words;
+
+  // Audio player defining
+  final AudioPlayer audioPlayer = AudioPlayer();
 
   // Constructor
   WordSearch(this.words);
@@ -170,13 +173,13 @@ class WordSearch extends SearchDelegate<dynamic> {
     );
   }
 
-  // Building the results based on the query (Both Russian and English)
+// Building the results based on the query (Both Russian and English)
   @override
   Widget buildResults(BuildContext context) {
     final List<Map<String, String>> results = words
         .where((word) =>
-            word['russian']!.toLowerCase().contains(query.toLowerCase()) ||
-            word['english']!.toLowerCase().contains(query.toLowerCase()))
+    word['russian']!.toLowerCase().contains(query.toLowerCase()) ||
+        word['english']!.toLowerCase().contains(query.toLowerCase()))
         .toList();
     return ListView.builder(
       itemCount: results.length,
@@ -184,7 +187,23 @@ class WordSearch extends SearchDelegate<dynamic> {
         return ListTile(
           title: Text(results[index]['russian']!),
           subtitle: Text(results[index]['english']!),
-          onTap: () {
+          onTap: () async {
+            // add code to play audio file here
+            final audioFile = await rootBundle
+            // Grabbing file from assets folder (Assigned to word)
+                .load('assets/audio/${results[index]['audio']}');
+            final audioPath =
+            // Grabbing file from dir then generate temporary dir when loaded to memory
+                '${(await getTemporaryDirectory()).path}/${results[index]['audio']}';
+            // Writing the audio file to the temporary directory
+            await File(audioPath).writeAsBytes(audioFile.buffer.asUint8List());
+
+            // Setting the file path to the audio player
+            await audioPlayer.setFilePath(audioPath);
+
+            // Play Audio here
+            audioPlayer.play();
+
             close(context, results[index]);
           },
         );
@@ -198,17 +217,33 @@ class WordSearch extends SearchDelegate<dynamic> {
     final List<Map<String, String>> suggestionList = query.isEmpty
         ? words
         : words
-            .where((word) =>
-                word['russian']!.toLowerCase().contains(query.toLowerCase()) ||
-                word['english']!.toLowerCase().contains(query.toLowerCase()))
-            .toList();
+        .where((word) =>
+    word['russian']!.toLowerCase().contains(query.toLowerCase()) ||
+        word['english']!.toLowerCase().contains(query.toLowerCase()))
+        .toList();
     return ListView.builder(
       itemCount: suggestionList.length,
       itemBuilder: (BuildContext context, int index) {
         return ListTile(
           title: Text(suggestionList[index]['russian']!),
           subtitle: Text(suggestionList[index]['english']!),
-          onTap: () {
+          onTap: () async {
+            // add code to play audio file here
+            final audioFile = await rootBundle
+            // Grabbing file from assets folder (Assigned to word)
+                .load('assets/audio/${suggestionList[index]['audio']}');
+            final audioPath =
+            // Grabbing file from dir then generate temporary dir when loaded to memory
+                '${(await getTemporaryDirectory()).path}/${suggestionList[index]['audio']}';
+            // Writing the audio file to the temporary directory
+            await File(audioPath).writeAsBytes(audioFile.buffer.asUint8List());
+
+            // Setting the file path to the audio player
+            await audioPlayer.setFilePath(audioPath);
+
+            // Play Audio here
+            audioPlayer.play();
+
             close(context, suggestionList[index]);
           },
         );
