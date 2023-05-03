@@ -11,7 +11,7 @@ import 'package:path_provider/path_provider.dart';
 void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -24,15 +24,15 @@ class MyApp extends StatelessWidget {
 
 // Creating a stateful widget
 class VocabularyList extends StatefulWidget {
-  const VocabularyList({Key? key});
+  const VocabularyList({super.key});
 
   // Creating a state
   @override
-  _VocabularyListState createState() => _VocabularyListState();
+  VocabularyListState createState() => VocabularyListState();
 }
 
 // Creating a state class
-class _VocabularyListState extends State<VocabularyList> {
+class VocabularyListState extends State<VocabularyList> {
   // initialize audio player here
   AudioPlayer audioPlayer = AudioPlayer();
 
