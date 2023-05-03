@@ -204,7 +204,8 @@ class WordSearch extends SearchDelegate<Map<String, String>> {
             // Play Audio here
             audioPlayer.play();
 
-            close(context, results[index]);
+            // Responsible closing the search delegate when a word is tapped/clicked
+            //close(context, results[index]);
           },
         );
       },
@@ -244,7 +245,8 @@ class WordSearch extends SearchDelegate<Map<String, String>> {
             // Play Audio here
             audioPlayer.play();
 
-            close(context, suggestionList[index]);
+            // Responsible closing the search delegate when a word is tapped/clicked
+            //close(context, suggestionList[index]);
           },
         );
       },
